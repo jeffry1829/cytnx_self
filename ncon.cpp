@@ -1,13 +1,6 @@
 #include "ncon.h"
 
 using namespace cytnx;
-//vec_where_all: return all elements'indices same as key
-template<class T>
-std::vector<int> vec_where_all(const std::vector<T>& in, const T &key){
-    std::vector<int> out;
-    for(int i = 0; i<in.size(); i++) if (in[i] == key) out.push_back(i);
-    return out;
-}
 
 //argsort: returns the indices that would sort an array.
 std::vector<cytnx_int64> argsort(const std::vector<cytnx_int64> in){
@@ -19,10 +12,10 @@ std::vector<cytnx_int64> argsort(const std::vector<cytnx_int64> in){
 
 // std::vector<std::vector<int>> partial_trace(Unitensor &A, std::vector<int> A_label){
 std::tuple<UniTensor, std::vector<int>, std::vector<int>> partial_trace(UniTensor &A, std::vector<int> A_label){
-    // Partial trace on tensor A over repeated labels in A_label
-    std::vector<int> label = vec_unique(A_label);
+// Partial trace on tensor A over repeated labels in A_label
+std::vector<int> label = vec_unique(A_label);
     std::vector<int> outlabel;
-    auto num_cont = A_label.size() - label.size();
+auto num_cont = A_label.size() - label.size();
     if (num_cont > 0){
         std::vector<std::vector<int>> dup_list;
         for (int i = 0; i < label.size(); i++){
@@ -82,8 +75,7 @@ int check_inputs(std::vector<std::vector<int>> connect_list, std::vector<int> fl
     return 0;
 }
 
-UniTensor ncon(const std::vector<UniTensor> &tensor_list_in, const std::vector<std::vector<int>> &connect_list_in, std::vector<int> cont_order = {}, const bool &check_network = false, const std::vector<cytnx_int64> &out_labels = {}){
-    
+UniTensor ncon(const std::vector<UniTensor> &tensor_list_in, const std::vector<std::vector<int>> &connect_list_in, const bool check_network/*false*/, std::vector<int> cont_order/*{}*/, const std::vector<cytnx_int64>& out_labels/*{}*/){
     UniTensor out;
     std::vector<std::vector<int>> connect_list = connect_list_in;
     std::vector<UniTensor> tensor_list = tensor_list_in;
@@ -113,14 +105,14 @@ UniTensor ncon(const std::vector<UniTensor> &tensor_list_in, const std::vector<s
     //     check_inputs(connect_list, flat_connect, dims_list, cont_order);
     // }
 
-    // // do all partial traces
-    // for (int ele = 0; ele < tensor_list.size(); ele++){
-    //     auto num_cont = connect_list[ele].size() - vec_unique(connect_list[ele]).size();
-    //     if (num_cont > 0){
-    //         tensor_list[ele] = partial_trace(tensor_list[ele], connect_list[ele])
-    //         cont_order = vec_erase(cont_order, vec_intersect(cont_order, cont_ind, true)[1])
-    //     }
-    // }
+	// // do all partial traces
+	// for (int ele = 0; ele < tensor_list.size(); ele++){
+		// int num_cont = connect_list[ele].size() - vec_unique(connect_list[ele]).size();
+		// if (num_cont > 0){
+			// tensor_list[ele] = partial_trace(tensor_list[ele], connect_list[ele])
+			// cont_order = vec_erase(cont_order, vec_intersect(cont_order, cont_ind, true)[1])
+		// }
+	// }
 
     // do all binary contractions
     while (cont_order.size() > 0) {
@@ -143,13 +135,11 @@ UniTensor ncon(const std::vector<UniTensor> &tensor_list_in, const std::vector<s
 
         std::vector<cytnx_int64> alabel;
         std::vector<cytnx_int64> blabel;
-        for (cytnx_int64 i = 0; i < tensor_list[locs[0]].labels().size(); i++)
-            alabel.push_back(i);
-        for (cytnx_int64 i = alabel.back()+1; i < alabel.back()+1+tensor_list[locs[1]].labels().size(); i++)
-            blabel.push_back(i);
+        for (cytnx_int64 i = 0; i < tensor_list[locs[0]].labels().size(); i++) alabel.push_back(i);
+        for (cytnx_int64 i = alabel.back()+1; i < alabel.back()+1+tensor_list[locs[1]].labels().size(); i++) blabel.push_back(i);
         for (cytnx_int64 i = 0; i < A_cont.size(); i++){
-            alabel[A_cont[i]] = blabel.back()+i;
-            blabel[B_cont[i]] = blabel.back()+i;
+            alabel[A_cont[i]] = blabel.back()+i+1;
+            blabel[B_cont[i]] = blabel.back()+i+1;
         }
         UniTensor Ta = tensor_list[locs[0]].relabels(alabel);
         UniTensor Tb = tensor_list[locs[1]].relabels(blabel);
@@ -157,6 +147,11 @@ UniTensor ncon(const std::vector<UniTensor> &tensor_list_in, const std::vector<s
         // tensor_list.push_back(tensordot(tensor_list[locs[0]], tensor_list[locs[1]], axes=(A_cont, B_cont)));
         // std::cout<<Ta.labels()<<std::endl;
         // std::cout<<Tb.labels()<<std::endl;
+		
+		//std::cout<<"Ta:"<<'\n'<<Ta.shape()<<' '<<Ta.labels()<<'\n';
+		//std::cout<<"Tb:"<<'\n'<<Tb.shape()<<' '<< Tb.labels()<<'\n';
+		
+
         tensor_list.push_back(Contract(Ta, Tb));
 
         // connect_list.append(np.append(np.delete(connect_list[locs[0]], A_cont), np.delete(connect_list[locs[1]], B_cont)))
@@ -195,10 +190,10 @@ UniTensor ncon(const std::vector<UniTensor> &tensor_list_in, const std::vector<s
             mconnect_list.push_back(-connect_list[0][i]);
         std::vector<cytnx_int64>  outorder = argsort(mconnect_list);
         out = tensor_list[0].permute(outorder);
-    }    
+    }
     else
         out = tensor_list[0];
 
-    out.set_labels(out_labels);
+    if(out_labels.size())out.set_labels(out_labels);
     return out;
 }

@@ -28,7 +28,7 @@ project ("ncon" LANGUAGES CXX)
 aux_source_directory(. SOURCE_DIR)
 
 #add_executable(run ${SOURCE_DIR})
-add_executable(run main.cpp)
+add_executable(run main.cpp ncon.cpp)
 
 # These explict includes are for Intellise
 #set(CYTNX_INC "/mnt/c/Users/petjelinux/source/repos/Cytnx_Self/include")
@@ -41,7 +41,7 @@ add_executable(run main.cpp)
 target_include_directories(run PUBLIC $ENV{CYTNX_INC})
 #target_link_directories(run PUBLIC "${CYTNX_LIB}")
 #target_link_libraries(run PUBLIC "$ENV{CYTNX_LIB}")
-target_compile_options(run PUBLIC $ENV{CYTNX_CXXFLAGS})
+target_compile_options(run PUBLIC -g -ggdb -rdynamic -O0 $ENV{CYTNX_CXXFLAGS} -O0)
 target_link_libraries(run PUBLIC $ENV{CYTNX_LIB})
 set(LIBS "$ENV{CYTNX_LDFLAGS}")
 string(REPLACE " " ";" LIBS_LIST ${LIBS})
