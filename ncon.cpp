@@ -129,18 +129,31 @@ UniTensor ncon(const std::vector<UniTensor> &tensor_list_in, const std::vector<s
         // cont_many, A_cont, B_cont = vec_intersect(connect_list[locs[0]], connect_list[locs[1]], true, true);
         std::vector<cytnx_uint64> A_cont;
         std::vector<cytnx_uint64> B_cont;        
-        std::vector<int> cont_many;     
+        std::vector<int> cont_many; 
 
         vec_intersect_(cont_many, connect_list[locs[0]], connect_list[locs[1]], A_cont, B_cont);
 
+		std::cout<<"cout_many: "; for(int i=0;i<cont_many.size();i++)std::cout<<(int)cont_many[i]<<' '; std::cout<<'\n';
+		std::cout<<"A_cont: "; for(int i=0;i<A_cont.size();i++)std::cout<<(int)A_cont[i]<<' '; std::cout<<'\n';
+		std::cout<<"A_shape: "; for(int i=0;i<tensor_list[locs[0]].shape().size();i++)std::cout<<(int)tensor_list[locs[0]].shape()[i]<<' '; std::cout<<'\n';
+		std::cout<<"B_cont: "; for(int i=0;i<B_cont.size();i++)std::cout<<(int)B_cont[i]<<' '; std::cout<<std::endl;
+		std::cout<<"B_shape: "; for(int i=0;i<tensor_list[locs[1]].shape().size();i++)std::cout<<(int)tensor_list[locs[1]].shape()[i]<<' '; std::cout<<std::endl;
+
         std::vector<cytnx_int64> alabel;
         std::vector<cytnx_int64> blabel;
-        for (cytnx_int64 i = 0; i < tensor_list[locs[0]].labels().size(); i++) alabel.push_back(i);
+        for (cytnx_int64 i = 1; i <= tensor_list[locs[0]].labels().size(); i++) alabel.push_back(i);
         for (cytnx_int64 i = alabel.back()+1; i < alabel.back()+1+tensor_list[locs[1]].labels().size(); i++) blabel.push_back(i);
         for (cytnx_int64 i = 0; i < A_cont.size(); i++){
+			std::cout<<"A_cont["<<i<<"]: "<<A_cont[i]<<'\n';
+			std::cout<<"blabel.back()+i+1: "<<blabel.back()+i+1<<'\n';
+			std::cout<<"alabelINSIDE: "; for(int j=0;j<alabel.size();j++)std::cout<<(int)alabel[j]<<' '; std::cout<<std::endl;
             alabel[A_cont[i]] = blabel.back()+i+1;
             blabel[B_cont[i]] = blabel.back()+i+1;
         }
+
+		std::cout<<"alabel: "; for(int i=0;i<alabel.size();i++)std::cout<<(int)alabel[i]<<' '; std::cout<<'\n';
+		std::cout<<"blabel: "; for(int i=0;i<blabel.size();i++)std::cout<<(int)blabel[i]<<' '; std::cout<<'\n';
+
         UniTensor Ta = tensor_list[locs[0]].relabels(alabel);
         UniTensor Tb = tensor_list[locs[1]].relabels(blabel);
 
