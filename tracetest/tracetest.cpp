@@ -74,14 +74,24 @@ inline int pmod(int x, int d){int m = x%d;return m+((m>>31)&d);}
 #define left aijhgpiaejhgp
 //#define end aononcncnccc
 //head
+#include <omp.h>
 
 int main(void){
-	const int N=2,M=20;
+	const int N=2,M=1024;
 	Tensor T = random::uniform(N*M*M*N,10,10000);
 	T.reshape_(N,M,M,N);
 	UniTensor UT = UniTensor(T,2);
 	UT.print_diagram();
-	cout<<endl;
+
+    // int Nomp;
+    // #pragma omp parallel
+    // {
+        // if(omp_get_thread_num()==0) Nomp = omp_get_num_threads();
+    // }
+    // cout << Nomp <<endl;
+
+	// cout<< omp_get_max_threads() <<endl;
+
 	UniTensor UT2 = UT.Trace(0,3);
 	UT2.print_diagram();
 	return 0;
