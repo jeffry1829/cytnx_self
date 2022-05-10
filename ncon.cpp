@@ -122,9 +122,18 @@ UniTensor ncon(const std::vector<UniTensor> &tensor_list_in, const std::vector<s
         for (int ele = 0; ele<connect_list.size(); ele++){
             int sum = 0;
             for (int i = 0; i < connect_list[ele].size(); i++)
-                if (connect_list[ele][i] == cont_ind) sum += connect_list[ele][i];
-            if (sum>0) locs.push_back(ele);
+                if (connect_list[ele][i] == cont_ind) sum++;
+			if (sum>0){
+				locs.push_back(ele);
+				std::cout<<"locs: "; for(int j=0;j<locs.size();j++)std::cout<<locs[j]<<' ';
+				std::cout<<'\n';
+				std::cout<<"connect_list: "; for(int j=0;j<connect_list[ele].size();j++)std::cout<<connect_list[ele][j]<<' ';
+				std::cout<<std::endl;
+				assert(sum==1);
+			}
+			assert(sum<=2);
         }
+		assert(locs.size()==2);
         // do binary contraction
         // cont_many, A_cont, B_cont = vec_intersect(connect_list[locs[0]], connect_list[locs[1]], true, true);
         std::vector<cytnx_uint64> A_cont;
@@ -152,7 +161,7 @@ UniTensor ncon(const std::vector<UniTensor> &tensor_list_in, const std::vector<s
         }
 
 		std::cout<<"alabel: "; for(int i=0;i<alabel.size();i++)std::cout<<(int)alabel[i]<<' '; std::cout<<'\n';
-		std::cout<<"blabel: "; for(int i=0;i<blabel.size();i++)std::cout<<(int)blabel[i]<<' '; std::cout<<'\n';
+		std::cout<<"blabel: "; for(int i=0;i<blabel.size();i++)std::cout<<(int)blabel[i]<<' '; std::cout<<std::endl;
 
         UniTensor Ta = tensor_list[locs[0]].relabels(alabel);
         UniTensor Tb = tensor_list[locs[1]].relabels(blabel);
@@ -190,11 +199,19 @@ UniTensor ncon(const std::vector<UniTensor> &tensor_list_in, const std::vector<s
 
     //do all outer products
     while (tensor_list.size() > 1) {
+        std::vector<cytnx_int64> alabel;
+        std::vector<cytnx_int64> blabel;
+		for(int i=0;i<tensor_list[tensor_list.size()-2].labels().size();i++)alabel.push_back(i);
+		for(int i=alabel.back()+1;i<alabel.back()+1+tensor_list[tensor_list.size()-1].labels().size();i++)blabel.push_back(i);
+		tensor_list[tensor_list.size()-2] = tensor_list[tensor_list.size()-2].relabels(alabel);
+		tensor_list[tensor_list.size()-1] = tensor_list[tensor_list.size()-1].relabels(blabel);
         tensor_list[tensor_list.size()-2] = Contract(tensor_list[tensor_list.size()-2], tensor_list[tensor_list.size()-1]);
         connect_list[connect_list.size()-2] = vec_concatenate(connect_list[connect_list.size()-2],connect_list[connect_list.size()-1]);
         tensor_list.erase(tensor_list.begin()+tensor_list.size()-1);
         connect_list.erase(connect_list.begin()+connect_list.size()-1);
     }
+	
+	std::cout<<"IM HERE1"<<std::endl;
 
     // do final permutation
     if (connect_list[0].size() > 0){
@@ -206,6 +223,8 @@ UniTensor ncon(const std::vector<UniTensor> &tensor_list_in, const std::vector<s
     }
     else
         out = tensor_list[0];
+
+	std::cout<<"IM HERE2"<<std::endl;
 
     if(out_labels.size())out.set_labels(out_labels);
     return out;

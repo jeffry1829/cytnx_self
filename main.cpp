@@ -81,6 +81,8 @@ vector<vector<cytnx_int64>> bonds;
 vector<VI> links;
 vector<UniTensor> uTs;
 int main(void) {ios_base::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+	ifstream cin("output.txt");
+
 	cin>>n;
 	rep(i,0,n){
 		vector<cytnx_int64> bond;
@@ -114,6 +116,9 @@ int main(void) {ios_base::sync_with_stdio(0);cin.tie(0);cout.tie(0);
 	}
 	UniTensor res=ncon(uTs,links);
 	int tot_dim=1;
+
+	std::cout<<"IM HERE3"<<std::endl;
+
 	vector<cytnx_uint64> shape=res.shape();
 	rep(i,0,SZ(shape))tot_dim*=shape[i];
 	vector<cytnx_int64> vtot_dim;
