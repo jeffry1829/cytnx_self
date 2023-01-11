@@ -73,7 +73,7 @@ inline int pmod(int x, int d){int m = x%d;return m+((m>>31)&d);}
 #define left aijhgpiaejhgp
 //#define end aononcncnccc
 //head
-const int _n=100,_d=30,_num=1e3;
+const int _n=15,_d=5,_num=1e3;
 int t,n,tot_bond_cnt=0;
 VI flatlink,flatbonds;
 vector<VI> bonds;

@@ -87,42 +87,46 @@ inline int pmod(int x, int d) {
 //#define end aononcncnccc
 // head
 #include <omp.h>
+struct timespec t_start, t_end;
+clock_t start, end;
 
+struct timespec diff(struct timespec start, struct timespec end) {
+  struct timespec temp;
+
+  if (end.tv_sec - start.tv_sec == 0) {
+    temp.tv_nsec = end.tv_nsec - start.tv_nsec;
+  } else {
+    temp.tv_nsec = ((end.tv_sec - start.tv_sec) * 1000000000) + end.tv_nsec - start.tv_nsec;
+  }
+
+  return temp;
+}
 int main(void) {
-  using std::chrono::duration;
-  using std::chrono::duration_cast;
-  using std::chrono::high_resolution_clock;
-  using std::chrono::milliseconds;
-
-  auto t1 = high_resolution_clock::now();
-  
-  const int N = 2, M = 1024;
-  Tensor T = random::uniform(N * M * M * N, 10, 10000);
+  const int N = 2, M = 3000;
+  Tensor T = random::uniform(N * M * M * N, 10, 100);
   T.reshape_(N, M, M, N);
   UniTensor UT = UniTensor(T, false, 2);
   UT.print_diagram();
 
-  // int Nomp;
-  // #pragma omp parallel
-  // {
-  // if(omp_get_thread_num()==0) Nomp = omp_get_num_threads();
-  // }
-  // cout << Nomp <<endl;
-
-  // cout<< omp_get_max_threads() <<endl;
+  clock_gettime(CLOCK_MONOTONIC, &t_start);
 
   UniTensor UT2 = UT.Trace(0, 3);
   UT2.print_diagram();
   
-  auto t2 = high_resolution_clock::now();
+  clock_gettime(CLOCK_MONOTONIC, &t_end);
+  printf("%lf\n", (double)(diff(t_start, t_end).tv_nsec / 1000000000.0));
 
-  /* Getting number of milliseconds as an integer. */
-  auto ms_int = duration_cast<milliseconds>(t2 - t1);
+  clock_gettime(CLOCK_MONOTONIC, &t_start);
 
-  /* Getting number of milliseconds as a double. */
-  duration<double, std::milli> ms_double = t2 - t1;
-
-  std::cout << ms_int.count() << "ms\n";
-  std::cout << ms_double.count() << "ms\n";
+  UniTensor I = UniTensor(ones(2), true, -1);
+  I.set_labels({1,2});
+  UT.set_labels({1,100,200,2});
+  I.print_diagram();
+  UT.print_diagram();
+  Tensor out = Contract(I, UT).get_block_();
+  UniTensor(out).print_diagram();
+  
+  clock_gettime(CLOCK_MONOTONIC, &t_end);
+  printf("%lf\n", (double)(diff(t_start, t_end).tv_nsec / 1000000000.0));
   return 0;
 }

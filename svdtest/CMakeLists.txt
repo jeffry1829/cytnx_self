@@ -3,7 +3,7 @@
 #
 cmake_minimum_required (VERSION 3.8)
 
-project ("ncon" LANGUAGES CXX)
+project ("svdtest" LANGUAGES CXX)
 
 # 包含子專案。
 #add_subdirectory ("Cytnx_test")
@@ -28,7 +28,7 @@ project ("ncon" LANGUAGES CXX)
 aux_source_directory(. SOURCE_DIR)
 
 #add_executable(run ${SOURCE_DIR})
-add_executable(run tracetest.cpp)
+add_executable(run main.cpp)
 
 # These explict includes are for Intellise
 #set(CYTNX_INC "/mnt/c/Users/petjelinux/source/repos/Cytnx_Self/include")
@@ -37,19 +37,6 @@ add_executable(run tracetest.cpp)
 #set(CYTNX_LDFLAGS "/home/petjelinux/anaconda3/envs/cytnx/lib/libmkl_intel_ilp64.so /home/petjelinux/anaconda3/envs/cytnx/lib/libmkl_intel_thread.so /home/petjelinux/anaconda3/envs/cytnx/lib/libmkl_core.so /home/petjelinux/anaconda3/envs/cytnx/lib/libiomp5.so -lpthread -lm -ldl -lpthread -lm -ldl -Wl,-rpath,/home/petjelinux/anaconda3/envs/cytnx/lib /mnt/c/Users/petjelinux/source/repos/Cytnx_Self/hptt/lib/libhptt.a")
 
 #include_directories("/mnt/c/Users/petjelinux/source/repos/Cytnx_Self/include")
-
-######################################################################
-### Get Gtest
-######################################################################
-include(FetchContent)
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip
-)
-# For Windows: Prevent overriding the parent project's compiler/linker settings
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
-######################################################################
 
 target_include_directories(run PUBLIC $ENV{CYTNX_INC})
 #target_link_directories(run PUBLIC "${CYTNX_LIB}")

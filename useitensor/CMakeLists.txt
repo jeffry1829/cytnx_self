@@ -5,16 +5,6 @@ cmake_minimum_required (VERSION 3.8)
 
 project ("ncon" LANGUAGES CXX)
 
-# 包含子專案。
-#add_subdirectory ("Cytnx_test")
-
-#execute_process(COMMAND echo $CYTNX_INC OUTPUT_VARIABLE CYTNX_INC)
-#execute_process(COMMAND echo $CYTNX_LDFLAGS OUTPUT_VARIABLE CYTNX_LDFLAGS)
-#execute_process(COMMAND echo $CYTNX_LIB OUTPUT_VARIABLE CYTNX_LIB)
-#execute_process(COMMAND echo $CYTNX_CXXFLAGS OUTPUT_VARIABLE CYTNX_CXXFLAGS)
-
-
-
 #set(CMAKE_CXX_COMPILER "g++")
 #set(CMAKE_CXX_STANDARD 20)
 #set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -28,7 +18,7 @@ project ("ncon" LANGUAGES CXX)
 aux_source_directory(. SOURCE_DIR)
 
 #add_executable(run ${SOURCE_DIR})
-add_executable(run tracetest.cpp)
+add_executable(run main.cpp)
 
 # These explict includes are for Intellise
 #set(CYTNX_INC "/mnt/c/Users/petjelinux/source/repos/Cytnx_Self/include")
@@ -59,11 +49,21 @@ target_link_libraries(run PUBLIC $ENV{CYTNX_LIB})
 set(LIBS "$ENV{CYTNX_LDFLAGS}")
 string(REPLACE " " ";" LIBS_LIST ${LIBS})
 target_link_libraries(run PUBLIC ${LIBS_LIST})
+
+#itensor
+target_include_directories(run PUBLIC /home/petjelinux/itensor)
+target_include_directories(run PUBLIC /home/petjelinux/itensor/itensor)
+set(LIBS "-L/home/petjelinux/itensor/lib -litensor -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_rt -lmkl_core -liomp5 -lpthread")
+string(REPLACE " " ";" LIBS_LIST2 ${LIBS})
+target_link_libraries(run PUBLIC ${LIBS_LIST2})
+
 target_link_libraries(run PUBLIC -lgcov --coverage -lrt)
 
-message(STATUS "$ENV{CYTNX_INC}")
-message(STATUS "$ENV{CYTNX_LIB}")
-message(STATUS "$ENV{CYTNX_CXXFLAGS}")
-message(STATUS "$ENV{CYTNX_LDFLAGS}")
+#message(STATUS "${LIBS_LIST2}")
+
+#message(STATUS "$ENV{CYTNX_INC}")
+#message(STATUS "$ENV{CYTNX_LIB}")
+#message(STATUS "$ENV{CYTNX_CXXFLAGS}")
+#message(STATUS "$ENV{CYTNX_LDFLAGS}")
 
 #target_link_libraries(run PUBLIC libs)
