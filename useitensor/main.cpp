@@ -11,8 +11,8 @@ int main() {
   auto L = Index(QN(-1), 2, QN(0), 1, QN(+1), 2, Out, "L");
   // auto T = randomITensorC(QN(0), I, J, K, L);
   auto T = readFromFile<ITensor>("tensor.txt");
-  auto trT = readFromFile<ITensor>("trace.txt");
-  PrintData(trT);
+  // auto trT = readFromFile<ITensor>("trace.txt");
+  // PrintData(trT);
   // PrintData(T);
   // PrintData(delta(I, L));
 
@@ -30,7 +30,7 @@ int main() {
   auto daggerT = T.dag();
 
   writeToFile("tensor.txt", T);
-  writeToFile("trace.txt", trT);
+  // writeToFile("trace.txt", trT);
   writeToFile("conj.txt", conjT);
   writeToFile("daggerj.txt", daggerT);
 
@@ -90,11 +90,11 @@ int main() {
           BUdaggerT.at({i-1,j-1,k-1,l-1}) = eltC(daggerT,i,j,k,l);
         }
 
-  for(size_t j=1;j<=11;j++)
-      for(size_t k=1;k<=3;k++)
-        if(BUtrT.at({j-1,k-1}).exists()){
-          BUtrT.at({j-1,k-1}) = eltC(trT,j,k);
-        }
+  // for(size_t j=1;j<=11;j++)
+  //     for(size_t k=1;k<=3;k++)
+  //       if(BUtrT.at({j-1,k-1}).exists()){
+  //         BUtrT.at({j-1,k-1}) = eltC(trT,j,k);
+  //       }
 
   cout<<BUT<<endl;
   // cout<<<<endl;
@@ -104,9 +104,9 @@ int main() {
   // BUT.Load("OriginalBUT.cytnx");
   // cout<<BUT<<endl;
   BUtrT.Save("BUtrT");
-  BUtrT.Save("BUconjT");
+  BUconjT.Save("BUconjT");
   // BUtrT.Save("BUtransposeT");
-  BUtrT.Save("BUdaggerT");
+  BUdaggerT.Save("BUdaggerT");
 
   return 0;
 }
